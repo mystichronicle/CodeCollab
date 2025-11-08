@@ -1,7 +1,7 @@
 fastapi==0.109.0
 uvicorn[standard]==0.38.0
 pydantic==2.5.3
-transformers==4.36.2
+transformers==4.57.1
 torch==2.9.0
 tokenizers==0.15.0
 redis==5.0.1
