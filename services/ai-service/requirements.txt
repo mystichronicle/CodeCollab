@@ -1,11 +1,11 @@
 fastapi==0.109.0
-uvicorn[standard]==0.27.0
+uvicorn[standard]==0.38.0
 pydantic==2.5.3
-transformers==4.36.2
-torch==2.1.2
+transformers==4.57.1
+torch==2.9.0
 tokenizers==0.15.0
 redis==5.0.1
-motor==3.3.2
+motor==3.7.1
 python-dotenv==1.0.0
-sentencepiece==0.1.99
-accelerate==0.25.0
+sentencepiece==0.2.1
+accelerate==1.11.0
