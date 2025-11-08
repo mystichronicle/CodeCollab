@@ -1,0 +1,27 @@
+# CodeOwners file for CodeCollab
+# These owners will be automatically requested for review when someone opens a pull request
+
+# Default owners for everything in the repo
+*       @mystichronicle
+
+# API Gateway (Python)
+/services/api-gateway/     @mystichronicle
+
+# Frontend (TypeScript/React)
+/services/frontend/        @mystichronicle
+
+# Execution Service (Rust)
+/services/execution-service/   @mystichronicle
+
+# Collaboration Service (Go)
+/services/collab-service/      @mystichronicle
+
+# Infrastructure & DevOps
+/docker-compose.yml       @mystichronicle
+/.github/                 @mystichronicle
+/startup.sh               @mystichronicle
+/shutdown.sh              @mystichronicle
+
+# Documentation
+/README.md                @mystichronicle
+/docs/                    @mystichronicle

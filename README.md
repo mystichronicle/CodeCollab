@@ -8,7 +8,7 @@
 [![Go](https://img.shields.io/badge/Go-1.21-cyan)](https://golang.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://typescriptlang.org)
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 - **Real-time Collaboration**: Multiple users can edit code simultaneously with live cursor tracking
@@ -26,7 +26,7 @@
 - Isolated code execution
 - Input validation and sanitization
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Docker** (v20.10+) and **Docker Compose** (v2.0+)
 - **Node.js** (v18+) and **npm** (v9+)
@@ -44,12 +44,12 @@
 - Elixir 1.12+
 - V Lang 0.3+
 
-## 🏃 Quick Start
+## Quick Start
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/codecollab.git
-cd codecollab
+git clone https://github.com/mystichronicle/CodeCollab.git
+cd CodeCollab
 ```
 
 ### 2. Environment Setup
@@ -93,15 +93,15 @@ Email: admin@codecollab.dev
 Password: admin123
 ```
 
-**⚠️ IMPORTANT**: Change default credentials in production!
+**WARNING**: Change default credentials in production!
 
-## 🛑 Stopping Services
+## Stopping Services
 
 ```bash
 ./shutdown.sh
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ### Services Overview
 
@@ -139,7 +139,7 @@ Password: admin123
 | **Auth Database** | PostgreSQL | User management |
 | **Cache** | Redis | Session caching |
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 codecollab/
@@ -178,7 +178,7 @@ codecollab/
 └── README.md                # This file
 ```
 
-## 🔧 Development
+## Development
 
 ### Running Individual Services
 
@@ -222,7 +222,7 @@ cd services/frontend
 npm run build
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Run All Tests
 ```bash
@@ -250,7 +250,7 @@ curl -X POST http://localhost:8004/execute \
   -d '{"code": "print(\"Hello World\")", "language": "python"}'
 ```
 
-## 📊 Supported Languages
+## Supported Languages
 
 | Language | Compiler/Interpreter | Execution Time* |
 |----------|---------------------|-----------------|
@@ -268,7 +268,7 @@ curl -X POST http://localhost:8004/execute \
 
 *Average execution time for "Hello World" programs
 
-## 🔐 Security Considerations
+## Security Considerations
 
 ### For Development
 - Default credentials provided for testing
@@ -300,7 +300,7 @@ CORS_ORIGINS=https://yourdomain.com
 ACCESS_TOKEN_EXPIRE_MINUTES=15
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Port Already in Use
 ```bash
@@ -342,7 +342,7 @@ cargo build --release
 ls -la target/release/execution-service
 ```
 
-## 📝 API Documentation
+## API Documentation
 
 Once running, interactive API documentation is available at:
 - **Swagger UI**: http://localhost:8000/docs
@@ -367,7 +367,7 @@ Once running, interactive API documentation is available at:
 **WebSocket:**
 - `WS /ws/{sessionId}` - Connect to collaboration session
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these steps:
 
@@ -378,15 +378,11 @@ We welcome contributions! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Authors
-
-- **Debjit** - *Initial work*
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Monaco Editor** - Microsoft's excellent code editor
 - **FastAPI** - Modern Python web framework
@@ -394,12 +390,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Motor** - Async MongoDB driver
 - **Docker** - Containerization platform
 
-## 📞 Support
+## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/codecollab/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/codecollab/discussions)
+- **Issues**: [GitHub Issues](https://github.com/mystichronicle/CodeCollab/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mystichronicle/CodeCollab/discussions)
 
-## �️ Roadmap
+## Roadmap
 
 - [x] Real-time collaboration
 - [x] Multi-language support (10 languages)

@@ -106,8 +106,15 @@ temp/
 *.pem
 *.key
 *.crt
+*.csr
 
-# Documentation (temporary/development files)
+# Build artifacts
+*.log
+*.tmp
+*.cache
+
+# Excluded project files (temporary/development)
+# Documentation files created during development
 *_BACKUP.md
 *_OLD.md
 *_TEMP.md
@@ -129,6 +136,10 @@ MONGODB_INTEGRATION.md
 PROGRESS_UPDATE.md
 DAILY_USE.md
 FRONTEND_COMPLETE.md
+
+# Setup/reference documentation (not for repository)
+docs/GITHUB_SETUP.md
+docs/BRANCH_PROTECTION.md
 
 # Old/redundant scripts
 quick-start.sh
