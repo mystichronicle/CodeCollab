@@ -259,14 +259,21 @@ export const SessionEditor: React.FC = () => {
 
       const result = await response.json();
       
-      if (result.exit_code === 0 && result.stdout) {
-        setOutput(`Output:\n${result.stdout}\n\nExecution time: ${result.execution_time.toFixed(2)}ms`);
-      } else if (result.stderr) {
-        setOutput(`Error:\n${result.stderr}`);
-      } else if (result.stdout) {
-        setOutput(`Output:\n${result.stdout}\n\nExit code: ${result.exit_code}\nExecution time: ${result.execution_time.toFixed(2)}ms`);
+      if (result.exit_code === 0) {
+        // Success - show stdout, and stderr only if present (as warnings)
+        let output = '';
+        if (result.stdout) {
+          output += `Output:\n${result.stdout}`;
+        }
+        if (result.stderr) {
+          output += output ? '\n\n' : '';
+          output += `Warnings:\n${result.stderr}`;
+        }
+        output += `\n\nExecution time: ${result.execution_time.toFixed(2)}ms`;
+        setOutput(output || 'No output');
       } else {
-        setOutput('No output');
+        // Error - show error message
+        setOutput(`Error:\n${result.stderr || result.stdout || 'Unknown error'}\n\nExit code: ${result.exit_code}\nExecution time: ${result.execution_time.toFixed(2)}ms`);
       }
     } catch (err: any) {
       console.error('Execution error:', err);

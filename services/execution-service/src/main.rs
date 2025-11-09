@@ -56,7 +56,8 @@ async fn execute_code(req: web::Json<ExecuteRequest>) -> impl Responder {
     
     let result = match req.language.as_str() {
         "python" => execute_python(&req.code, timeout).await,
-        "javascript" | "typescript" => execute_javascript(&req.code, timeout).await,
+        "javascript" => execute_javascript(&req.code, timeout).await,
+        "typescript" => execute_typescript(&req.code, timeout).await,
         "rust" => execute_rust(&req.code, timeout).await,
         "go" => execute_go(&req.code, timeout).await,
         "cpp" | "c++" => execute_cpp(&req.code, timeout).await,
@@ -131,6 +132,39 @@ async fn execute_javascript(code: &str, timeout: u64) -> Result<(String, String,
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| format!("Failed to start Node.js: {}", e))?;
+    
+    let result = tokio::time::timeout(
+        std::time::Duration::from_secs(timeout),
+        tokio::task::spawn_blocking(move || child.wait_with_output()),
+    )
+    .await;
+    
+    match result {
+        Ok(Ok(Ok(output))) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            let exit_code = output.status.code().unwrap_or(1);
+            Ok((stdout, stderr, exit_code))
+        }
+        Ok(Ok(Err(e))) => Err(format!("Process error: {}", e)),
+        Ok(Err(e)) => Err(format!("Task error: {}", e)),
+        Err(_) => Err(format!("Execution timeout ({}s)", timeout)),
+    }
+}
+
+async fn execute_typescript(code: &str, timeout: u64) -> Result<(String, String, i32), String> {
+    use std::process::{Command, Stdio};
+    
+    let child = Command::new("ts-node")
+        .arg("--transpile-only")
+        .arg("--compiler-options")
+        .arg("{\"module\":\"commonjs\"}")
+        .arg("-e")
+        .arg(code)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("Failed to start TypeScript: {}", e))?;
     
     let result = tokio::time::timeout(
         std::time::Duration::from_secs(timeout),
