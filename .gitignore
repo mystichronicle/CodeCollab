@@ -121,3 +121,6 @@ temp/
 quick-start.sh
 full-start.sh
 test-*.sh
+
+# Documentation (keep local only)
+docs/
