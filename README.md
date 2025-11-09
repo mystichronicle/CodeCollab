@@ -4,15 +4,15 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
-[![Rust](https://img.shields.io/badge/Rust-1.91-orange)](https://rust-lang.org)
+[![Rust](https://img.shields.io/badge/Rust-1.83-orange)](https://rust-lang.org)
 [![Go](https://img.shields.io/badge/Go-1.21-cyan)](https://golang.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://typescriptlang.org)
 
 ## Features
 
 ### Core Functionality
 - **Real-time Collaboration**: Multiple users can edit code simultaneously with live cursor tracking
-- **10+ Programming Languages**: Python, JavaScript, TypeScript, Go, Rust, C, C++, Java, Zig, Elixir, V Lang
+- **11 Programming Languages**: Python, JavaScript, TypeScript, Go, Rust, C, C++, Java, Zig, Elixir, V Lang
 - **Code Execution**: Run code directly in the browser with isolated execution environments
 - **Session Sharing**: Share sessions using 8-character codes
 - **Persistent Storage**: MongoDB-backed session storage
@@ -29,8 +29,8 @@
 ## Prerequisites
 
 - **Docker** (v20.10+) and **Docker Compose** (v2.0+)
-- **Node.js** (v18+) and **npm** (v9+)
-- **Rust** (v1.70+) and **Cargo**
+- **Node.js** (v22+) and **npm** (v10+)
+- **Rust** (v1.83+) and **Cargo**
 - **Git**
 
 ### Optional (for language execution)
@@ -83,7 +83,7 @@ cd ../..
 ```
 
 ### 6. Access Application
-- **Frontend**: http://localhost:5173
+- **Frontend**: http://localhost:3000
 - **API Documentation**: http://localhost:8000/docs
 - **Health Check**: http://localhost:8000/api/v1/health
 
@@ -108,7 +108,7 @@ Password: admin123
 ```
 ┌─────────────────┐
 │    Frontend     │  React + TypeScript + Monaco Editor
-│   Port: 5173    │
+│   Port: 3000    │
 └────────┬────────┘
          │
          ▼
@@ -290,14 +290,27 @@ curl -X POST http://localhost:8004/execute \
 ### Environment Variables (Production)
 ```bash
 # Required
-SECRET_KEY=<64-char-random-string>
+SECRET_KEY=<generate-with-secrets.token_urlsafe(32)>
 ENVIRONMENT=production
-DATABASE_URL=postgresql://user:pass@host/db
-MONGODB_URL=mongodb://user:pass@host/db
+DATABASE_URL=postgresql://user:password@prod-db-host:5432/codecollab
+MONGODB_URL=mongodb://user:password@prod-mongo-host:27017/codecollab
+REDIS_URL=redis://prod-redis-host:6379/0
+RABBITMQ_URL=amqp://user:password@prod-rabbitmq-host:5672/
 
-# Recommended
-CORS_ORIGINS=https://yourdomain.com
+# JWT Configuration
+ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=15
+
+# CORS (comma-separated, production domains only)
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+
+# Service URLs (adjust based on your deployment)
+EXECUTION_SERVICE_URL=http://execution-service:8004
+COLLAB_SERVICE_URL=http://collab-service:8002
+
+# Frontend Configuration
+VITE_API_GATEWAY_URL=https://api.yourdomain.com
+VITE_COLLAB_WS_URL=wss://ws.yourdomain.com
 ```
 
 ## Troubleshooting
@@ -305,9 +318,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES=15
 ### Port Already in Use
 ```bash
 # Kill processes on specific ports
-lsof -ti:5173 | xargs kill -9  # Frontend
+lsof -ti:3000 | xargs kill -9  # Frontend
 lsof -ti:8000 | xargs kill -9  # API
 lsof -ti:8004 | xargs kill -9  # Execution
+lsof -ti:8002 | xargs kill -9  # Collaboration
 ```
 
 ### Docker Issues
@@ -398,7 +412,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Roadmap
 
 - [x] Real-time collaboration
-- [x] Multi-language support (10 languages)
+- [x] Multi-language support (11 languages)
 - [x] Session sharing
 - [x] MongoDB persistence
 - [ ] AI code suggestions
