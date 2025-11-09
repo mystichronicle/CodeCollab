@@ -534,7 +534,7 @@ async fn execute_zig(code: &str, timeout: u64) -> Result<(String, String, i32), 
     
     // Execute the compiled binary
     let exe_path = format!("{}/main", temp_dir);
-    let mut child = match Command::new(&exe_path)
+    let child = match Command::new(&exe_path)
         .current_dir(&temp_dir)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -586,7 +586,7 @@ async fn execute_elixir(code: &str, timeout: u64) -> Result<(String, String, i32
         })?;
     
     // Execute Elixir script
-    let mut child = match Command::new("elixir")
+    let child = match Command::new("elixir")
         .arg("main.exs")
         .current_dir(&temp_dir)
         .stdout(Stdio::piped())
@@ -639,7 +639,7 @@ async fn execute_vlang(code: &str, timeout: u64) -> Result<(String, String, i32)
         })?;
     
     // Execute V code directly (V can run scripts without explicit compilation step)
-    let mut child = match Command::new("v")
+    let child = match Command::new("v")
         .args(&["run", "main.v"])
         .current_dir(&temp_dir)
         .stdout(Stdio::piped())
