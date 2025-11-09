@@ -11,12 +11,14 @@ class SessionCreate(BaseModel):
     language: str = "python"
     description: Optional[str] = None
     code: Optional[str] = None
+    tags: Optional[List[str]] = []
 
 
 class SessionUpdate(BaseModel):
     name: Optional[str] = None
     code: Optional[str] = None
     is_active: Optional[bool] = None
+    tags: Optional[List[str]] = None
 
 
 class SessionResponse(BaseModel):
@@ -34,6 +36,7 @@ class SessionResponse(BaseModel):
     access_count: Optional[int] = 0
     is_active: bool
     code: Optional[str] = None
+    tags: Optional[List[str]] = []
 
     class Config:
         from_attributes = True

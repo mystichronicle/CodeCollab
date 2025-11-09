@@ -58,7 +58,8 @@ async def create_session(
         "created_at": now,
         "updated_at": now,
         "last_accessed_at": now,
-        "access_count": 0
+        "access_count": 0,
+        "tags": session.tags or []
     }
     
     await db.sessions.insert_one(new_session)
@@ -71,6 +72,7 @@ async def create_session(
 @router.get("/sessions", response_model=List[SessionResponse])
 async def list_sessions(
     language: str = None,
+    tags: str = None,  # Comma-separated tags
     current_user = Depends(get_current_user)
 ):
     """List all sessions where user is participant or owner"""
@@ -81,19 +83,19 @@ async def list_sessions(
     if language:
         query["language"] = language
     
+    # Filter by tags if provided (comma-separated)
+    if tags:
+        tag_list = [tag.strip() for tag in tags.split(",")]
+        query["tags"] = {"$all": tag_list}
+    
     sessions_cursor = db.sessions.find(query)
     user_sessions = []
     async for session in sessions_cursor:
         session.pop('_id', None)
         user_sessions.append(session)
     
-    logger.info(f"User {current_user.username} listing {len(user_sessions)} sessions")
-    return user_sessions
-    if language:
-        user_sessions = [s for s in user_sessions if s["language"] == language]
-    
     # Sort by updated_at descending
-    user_sessions.sort(key=lambda x: x["updated_at"], reverse=True)
+    user_sessions.sort(key=lambda x: x.get("updated_at", x.get("created_at")), reverse=True)
     
     logger.info(f"User {current_user.username} listing {len(user_sessions)} sessions")
     return user_sessions
@@ -156,6 +158,8 @@ async def update_session(
         update_fields["description"] = session_update.description
     if session_update.code is not None:
         update_fields["code"] = session_update.code
+    if session_update.tags is not None:
+        update_fields["tags"] = session_update.tags
     
     await db.sessions.update_one(
         {"id": session_id},

@@ -82,6 +82,7 @@ export interface Session {
   access_count?: number;
   is_active: boolean;
   code?: string;
+  tags?: string[];
 }
 
 export interface CreateSessionData {
@@ -89,11 +90,14 @@ export interface CreateSessionData {
   language: string;
   description?: string;
   code?: string;
+  tags?: string[];
 }
 
 export const sessionsAPI = {
-  list: async (language?: string): Promise<Session[]> => {
-    const params = language ? { language } : {};
+  list: async (language?: string, tags?: string[]): Promise<Session[]> => {
+    const params: any = {};
+    if (language) params.language = language;
+    if (tags && tags.length > 0) params.tags = tags.join(',');
     const response = await api.get('/sessions', { params });
     return response.data;
   },

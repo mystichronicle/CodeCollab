@@ -42,6 +42,8 @@ export const Dashboard: React.FC = () => {
   const [newSessionName, setNewSessionName] = useState('');
   const [newSessionLanguage, setNewSessionLanguage] = useState('python');
   const [newSessionDescription, setNewSessionDescription] = useState('');
+  const [newSessionTags, setNewSessionTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [joinError, setJoinError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,6 +143,7 @@ export const Dashboard: React.FC = () => {
         name: newSessionName.trim(),
         language: newSessionLanguage,
         description: newSessionDescription.trim() || undefined,
+        tags: newSessionTags,
       });
       
       setSessions([newSession, ...sessions]);
@@ -148,6 +151,8 @@ export const Dashboard: React.FC = () => {
       setNewSessionName('');
       setNewSessionDescription('');
       setNewSessionLanguage('python');
+      setNewSessionTags([]);
+      setTagInput('');
       setSuccessMessage(`Session "${newSession.name}" created successfully!`);
       setTimeout(() => setSuccessMessage(''), 3000);
       navigate(`/session/${newSession.id}`);
@@ -155,6 +160,24 @@ export const Dashboard: React.FC = () => {
       console.error('Failed to create session:', err);
       setError('Failed to create session: ' + (err.response?.data?.detail || err.message));
       setTimeout(() => setError(''), 5000);
+    }
+  };
+
+  const handleAddTag = () => {
+    if (tagInput.trim() && !newSessionTags.includes(tagInput.trim())) {
+      setNewSessionTags([...newSessionTags, tagInput.trim()]);
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setNewSessionTags(newSessionTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleTagInputKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
     }
   };
 
@@ -450,7 +473,26 @@ export const Dashboard: React.FC = () => {
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm">
+                  {/* Tags */}
+                  {session.tags && session.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {session.tags.slice(0, 3).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-0.5 text-xs font-medium bg-blue-600/20 text-blue-300 rounded border border-blue-500/30"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {session.tags.length > 3 && (
+                        <span className="px-2 py-0.5 text-xs font-medium bg-gray-700/50 text-gray-400 rounded border border-gray-600/50">
+                          +{session.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between text-sm mt-2">
                     <div className="flex items-center space-x-4">
                       {/* Participants */}
                       <div className="flex items-center text-gray-400 group-hover:text-gray-300 transition-colors">
@@ -593,6 +635,54 @@ export const Dashboard: React.FC = () => {
                   rows={3}
                   className="w-full px-5 py-4 bg-gray-900/50 backdrop-blur border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-base resize-none"
                 />
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label htmlFor="sessionTags" className="block text-sm font-semibold text-gray-300 mb-3">
+                  Tags <span className="text-gray-500 text-xs">(optional)</span>
+                </label>
+                <div className="space-y-3">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      id="sessionTags"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleTagInputKeyDown}
+                      placeholder="e.g., web, api, backend"
+                      className="flex-1 px-5 py-3 bg-gray-900/50 backdrop-blur border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-base"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddTag}
+                      className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors font-semibold"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {newSessionTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {newSessionTags.map((tag, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2 px-3 py-1.5 bg-blue-600/20 border border-blue-500/30 rounded-lg text-blue-300 text-sm"
+                        >
+                          <span>{tag}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(tag)}
+                            className="text-blue-400 hover:text-blue-200 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Language Selector */}
