@@ -1,8 +1,10 @@
 """Authentication endpoints for login, registration, and token management."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.core.database import get_db
 from app.core.security import (
@@ -16,10 +18,12 @@ from app.schemas.auth import UserCreate, UserLogin, UserResponse, Token
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user."""
     
     # Check if user exists
@@ -51,7 +55,9 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
