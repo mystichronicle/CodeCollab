@@ -17,7 +17,6 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [originalContent, setOriginalContent] = useState<string>('');
-  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
@@ -87,7 +86,6 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
   const handleFileClick = async (filePath: string) => {
     setSelectedFile(filePath);
     setViewMode('editor');
-    setIsEditing(true);
     
     try {
       const content = await gitService.readFile(sessionId, { file_path: filePath });
@@ -409,7 +407,6 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
                     <button
                       onClick={() => {
                         setViewMode('tree');
-                        setIsEditing(false);
                         setSelectedFile(null);
                       }}
                       className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all"
