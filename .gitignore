@@ -122,6 +122,7 @@ temp/
 quick-start.sh
 full-start.sh
 test-*.sh
+close_dependabot_prs.sh
 
 # Documentation (keep local only)
 docs/
