@@ -153,7 +153,7 @@ export const GitWorkspace: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <div className="bg-gray-800/50 backdrop-blur rounded-2xl border border-gray-700/50 p-6">
+            <div className="bg-gray-800/50 backdrop-blur rounded-2xl border border-gray-700/50 p-6" style={{ minHeight: '700px' }}>
               {activeTab === 'repos' && (
                 <div>
                   <div className="flex items-center justify-between mb-6">
@@ -167,10 +167,12 @@ export const GitWorkspace: React.FC = () => {
               )}
               
               {activeTab === 'files' && (
-                <div>
+                <div className="h-full flex flex-col">
                   <h2 className="text-2xl font-bold text-white mb-6">File Browser</h2>
                   {selectedWorkspace ? (
-                    <GitFileExplorer sessionId={selectedWorkspace} />
+                    <div className="flex-1">
+                      <GitFileExplorer sessionId={selectedWorkspace} />
+                    </div>
                   ) : (
                     <div className="text-center py-12">
                       <svg className="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

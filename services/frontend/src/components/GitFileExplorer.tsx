@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Editor from '@monaco-editor/react';
 import { gitService, FileTreeItem, GitStatus } from '../services/gitService';
 
 interface GitFileExplorerProps {
@@ -15,10 +16,14 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
   const [gitStatus, setGitStatus] = useState<GitStatus | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
+  const [originalContent, setOriginalContent] = useState<string>('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'tree' | 'diff'>('tree');
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'tree' | 'editor'>('tree');
 
   useEffect(() => {
     loadFileTree();
@@ -81,14 +86,74 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
 
   const handleFileClick = async (filePath: string) => {
     setSelectedFile(filePath);
-    setViewMode('diff');
+    setViewMode('editor');
+    setIsEditing(true);
     
     try {
       const content = await gitService.readFile(sessionId, { file_path: filePath });
       setFileContent(content.content);
+      setOriginalContent(content.content);
     } catch (err: any) {
       setError(err.message || 'Failed to read file');
     }
+  };
+
+  const handleSaveFile = async () => {
+    if (!selectedFile) return;
+    
+    setIsSaving(true);
+    setError(null);
+    
+    try {
+      await gitService.writeFile(sessionId, {
+        file_path: selectedFile,
+        content: fileContent,
+      });
+      setOriginalContent(fileContent);
+      setSuccessMessage('File saved successfully!');
+      setTimeout(() => setSuccessMessage(null), 3000);
+      await loadGitStatus(); // Refresh git status after save
+    } catch (err: any) {
+      setError(err.message || 'Failed to save file');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditorChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setFileContent(value);
+    }
+  };
+
+  const getLanguageFromFilePath = (filePath: string): string => {
+    const ext = filePath.split('.').pop()?.toLowerCase();
+    const languageMap: Record<string, string> = {
+      'js': 'javascript',
+      'jsx': 'javascript',
+      'ts': 'typescript',
+      'tsx': 'typescript',
+      'py': 'python',
+      'go': 'go',
+      'rs': 'rust',
+      'c': 'c',
+      'cpp': 'cpp',
+      'cc': 'cpp',
+      'cxx': 'cpp',
+      'java': 'java',
+      'json': 'json',
+      'html': 'html',
+      'css': 'css',
+      'scss': 'scss',
+      'md': 'markdown',
+      'yaml': 'yaml',
+      'yml': 'yaml',
+      'xml': 'xml',
+      'sh': 'shell',
+      'bash': 'shell',
+      'txt': 'plaintext',
+    };
+    return languageMap[ext || ''] || 'plaintext';
   };
 
   const toggleDirectory = (dirPath: string) => {
@@ -200,7 +265,7 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden">
+    <div className="flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden" style={{ height: '650px' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gray-900/50 backdrop-blur">
         <div className="flex items-center space-x-3">
@@ -213,7 +278,7 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
             <h3 className="text-lg font-bold text-white">File Explorer</h3>
             {gitStatus && (
               <p className="text-xs text-gray-400">
-                Branch: <span className="text-blue-400 font-semibold">{gitStatus.current_branch}</span>
+                Branch: <span className="text-blue-400 font-semibold">{gitStatus.branch}</span>
                 {gitStatus.is_dirty && (
                   <span className="ml-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs">
                     Uncommitted changes
@@ -225,9 +290,9 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => setViewMode(viewMode === 'tree' ? 'diff' : 'tree')}
+            onClick={() => setViewMode(viewMode === 'tree' ? 'editor' : 'tree')}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all"
-            title={viewMode === 'tree' ? 'Show diff view' : 'Show tree view'}
+            title={viewMode === 'tree' ? 'Show editor view' : 'Show tree view'}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {viewMode === 'tree' ? (
@@ -267,8 +332,20 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
         </div>
       )}
 
+      {/* Success Toast */}
+      {successMessage && (
+        <div className="mx-4 mt-4 p-3 bg-green-500/10 border border-green-500/50 rounded-lg text-green-400 text-sm animate-fadeIn">
+          <div className="flex items-center space-x-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>{successMessage}</span>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
         {viewMode === 'tree' ? (
           <div className="h-full overflow-y-auto p-2">
             {isLoading ? (
@@ -290,38 +367,89 @@ const GitFileExplorer: React.FC<GitFileExplorerProps> = ({ sessionId }) => {
             )}
           </div>
         ) : (
-          <div className="h-full overflow-y-auto p-4">
+          <div className="h-full flex flex-col">
             {selectedFile ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-700/50">
-                  <div className="flex items-center space-x-2">
+              <>
+                {/* Editor Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gray-900/50">
+                  <div className="flex items-center space-x-3">
                     <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span className="text-white font-semibold">{selectedFile}</span>
+                    <div>
+                      <span className="text-white font-semibold">{selectedFile}</span>
+                      {fileContent !== originalContent && (
+                        <span className="ml-2 text-xs text-yellow-400">● Modified</span>
+                      )}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => setViewMode('tree')}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleSaveFile}
+                      disabled={isSaving || fileContent === originalContent}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg text-sm font-semibold transition-all disabled:cursor-not-allowed flex items-center space-x-2"
+                    >
+                      {isSaving ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                          </svg>
+                          <span>Saving...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                          </svg>
+                          <span>Save</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setViewMode('tree');
+                        setIsEditing(false);
+                        setSelectedFile(null);
+                      }}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
-                  <pre className="text-sm text-gray-300 font-mono overflow-x-auto">
-                    <code>{fileContent || 'Loading...'}</code>
-                  </pre>
+
+                {/* Monaco Editor */}
+                <div className="flex-1" style={{ minHeight: 0 }}>
+                  <Editor
+                    height="100%"
+                    language={getLanguageFromFilePath(selectedFile)}
+                    value={fileContent}
+                    onChange={handleEditorChange}
+                    theme="vs-dark"
+                    options={{
+                      fontSize: 14,
+                      minimap: { enabled: true },
+                      scrollBeyondLastLine: false,
+                      wordWrap: 'on',
+                      automaticLayout: true,
+                      tabSize: 2,
+                      insertSpaces: true,
+                      formatOnPaste: true,
+                      formatOnType: true,
+                    }}
+                  />
                 </div>
-              </div>
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-gray-500">
                 <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <p className="text-lg font-semibold">No file selected</p>
-                <p className="text-sm">Click a file to view its contents</p>
+                <p className="text-sm">Click a file to edit its contents</p>
               </div>
             )}
           </div>

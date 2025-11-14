@@ -1,83 +1,77 @@
 version: 2
 updates:
-  # GitHub Actions
+  # GitHub Actions - Monthly updates only
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "github-actions"
 
-  # Python dependencies (API Gateway)
+  # Python dependencies (API Gateway) - Monthly
   - package-ecosystem: "pip"
     directory: "/services/api-gateway"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "python"
       - "api-gateway"
 
-  # Python dependencies (AI Service)
+  # Python dependencies (AI Service) - Monthly
   - package-ecosystem: "pip"
     directory: "/services/ai-service"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "python"
       - "ai-service"
 
-  # Cargo dependencies (Execution Service)
+  # Cargo dependencies (Execution Service) - Monthly
   - package-ecosystem: "cargo"
     directory: "/services/execution-service"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "rust"
       - "execution-service"
 
-  # Go dependencies (Collaboration Service)
+  # Go dependencies (Collaboration Service) - Monthly
   - package-ecosystem: "gomod"
     directory: "/services/collab-service"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "go"
       - "collab-service"
 
-  # npm dependencies (Frontend)
+  # npm dependencies (Frontend) - Monthly
   - package-ecosystem: "npm"
     directory: "/services/frontend"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "npm"
       - "frontend"
     versioning-strategy: increase
 
-  # Docker dependencies
+  # Docker dependencies - Quarterly only
   - package-ecosystem: "docker"
     directory: "/services/api-gateway"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "docker"
@@ -86,7 +80,7 @@ updates:
     directory: "/services/collab-service"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "docker"
@@ -95,7 +89,7 @@ updates:
     directory: "/services/execution-service"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "docker"
@@ -104,7 +98,7 @@ updates:
     directory: "/services/frontend"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "docker"
